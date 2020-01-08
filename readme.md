@@ -35,7 +35,10 @@ This ReadMe will walk through deployment steps, and highlight potential pitfalls
 
 
 ## Deployment Guide
-_Note:  You will require elevated IAM privileges in AWS, ideally AdministratorAccess, to complete this process_
+_Note:  This process will create S3 buckets, IAM resources, AMI build resources, a SageMaker notebook, and an EMR cluster.  These resources may not be covered by the AWS Free Tier, and may generate significant cost.  For up to date information, refer to the [AWS Pricing page](https://aws.amazon.com/pricing/)._
+
+_You will require elevated IAM privileges in AWS, ideally AdministratorAccess, to complete this process._
+
 
 To deploy Hail on EMR, follow these steps:  
 
