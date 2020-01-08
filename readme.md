@@ -111,6 +111,7 @@ Post upload, the bucket contents should look similar to this:
 
 
 ### hail-ami
+_Note: Deployment of this template is OPTIONAL.  It is only necessary if you wish to create your own custom AMIs.  [Public AMIs](#public-amis) are published below and can be used in place of this deloyment process_
 
 This template is deployed _once_.
 
