@@ -1,4 +1,4 @@
-# Building a Hail Custom AMI
+# Building a Custom Hail AMI
 
 This ReadMe contains expanded documentation surrounding the AMI custom build process referenced in the [Deployment Guide](/readme.md#deployment-guide).
 
