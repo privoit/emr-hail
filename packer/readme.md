@@ -74,7 +74,7 @@ The `scripts` directory contains bash scripts supporting the build components (V
 ## Build Process
 To build a custom Hail AMI for use with EMR, follow these steps:
 
-1. Deploy the S3 resources described in the main and AWS CodeBuild resources described in the [Deployment Guide](/readme.md#deployment-guide) contained in the `hail-s3.yml` template
+1. Deploy the S3 resources described in the [Deployment Guide](/readme.md#deployment-guide) contained in the `hail-s3.yml` template
 
 2. Deploy the AWS CodeBuild resources described in the [Deployment Guide](/readme.md#deployment-guide) contained in the `hail-ami.yml` template
 
@@ -136,7 +136,7 @@ move: ./packer.zip to s3://YOUR-BUCKET/ami/packer.zip
 
 Before building, keep the following in mind:
 
-- Builds can take upwards of 90 minutes.
+- Builds can take a _very_ long time (upwards of 1-2 hours in some cases).
 - You must have VEP cache in your S3 bucket for the version of VEP you're building for
 - AMI names are unique.  If building an updated AMI, deregister the previous.
 
