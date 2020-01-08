@@ -71,7 +71,7 @@ The template consumes 3 parameters, and creates 3 S3 buckets with [Server-Side E
 - Log Bucket - EMR logs will be written here
 - SageMaker Jupyter Bucket - Users notebooks will be backed up here, and common/example notebooks will be stored here as well.
 
-*Note: S3 bucket names MUST be unique.  If the S3 bucket name is in use elsewhere, deployment will fail*
+*Note: S3 bucket names MUST be unique.  If the S3 bucket name is in use elsewhere, deployment will fail.*
 
 
 ### hail-jupyter
@@ -121,6 +121,8 @@ Review the [expanded documentation](packer/readme.md) for further details.
 This template can be deployed `multiple times` (one per cluster).
 
 This template deploys the EMR cluster using the custom Hail AMI.  There is a single master node, a minimum of 1 core node, and optional autoscaling task nodes.
+
+_Note:  The EMR cluster MUST be deployed in the same subnet as the Jupyter notebook.  Otherwise, you may see ephemeral routing issues._
 
 #### Autoscaling Task Nodes
 
