@@ -17,6 +17,7 @@ The repository is organized into several directories:
 
 This ReadMe will walk through deployment steps, and highlight potential pitfalls.
 
+
 ## Table of Contents
 
 - [Deployment Guide](#deployment-guide)
@@ -32,6 +33,7 @@ This ReadMe will walk through deployment steps, and highlight potential pitfalls
   - [Hail with VEP](#hail-with-vep)
   - [Hail Only](#hail-only)
 
+
 ## Deployment Guide
 To deploy this Hail on EMR, follow these steps:  
 
@@ -39,21 +41,25 @@ To deploy this Hail on EMR, follow these steps:
 
 2. Deploy the [hail-s3.yml](#hail-s3) template to create S3 resources, ensuring you use unique names for the S3 buckets
 
-2. Once the `hail-s3` stack deployment completes, deploy the [hail-jupyter.yml](#hail-jupyter) template to create the SageMaker notebook instance
+3. Once the `hail-s3` stack deployment completes, deploy the [hail-jupyter.yml](#hail-jupyter) template to create the SageMaker notebook instance
 
-3. At this point you have created S3 buckets, and now have a SageMaker notebook instance you can log into
+4. At this point you have created S3 buckets, and now have a SageMaker notebook instance you can log into.  You may repeat Step 3 as needed for multiple users.  For more details, see the [hail-jupyter](#hail-jupyter) section below
 
-4. Once the `hail-jupyter` stack deploy completes, deploy the [hail-ami.yml](#hail-ami) template to create the custom AMI build process using CodeBuild and Packer (note that this step is optional if you intend to use the public AMIs listed below)
+5. Once the `hail-jupyter` stack deployment completes, deploy the [hail-ami.yml](#hail-ami) template to create the custom AMI build process using CodeBuild and Packer (note that this step is optional if you intend to use the public AMIs listed below)
 
-5. If you do not intend to use the public AMIs, follow the [expanded documentation](packer/readme.md) to create your Hail AMIs
+6. If you do not intend to use the public AMIs, follow the [expanded documentation](packer/readme.md) to create your Hail AMIs
 
-6. Once the AMI build is complete (or you have selected your public AMI), deploy the [hail-emr.yml](#hail-emr) template to create the EMR cluster using a custom Hail AMI
+7. Once the AMI build is complete (or you have selected your public AMI), deploy the [hail-emr.yml](#hail-emr) template to create the EMR cluster using a custom Hail AMI.  Note that you _must_ deploy the EMR cluster in the same subnet that you deployed the SageMaker notebook in step 4, otherwise you may run into routing issues
 
-The order is important, as resources created by one stack may be used as parameter entries to later stacks.  For detailed information about individual templates (including troubleshooting), see the following section.
+8. After the `hail-emr` stack deployment completes, you may log into the Jupyter notebook and access the Hail cluster
+
+Note that follow these steps _in order_ is crucial, as resources created by one stack may be used as parameter entries to later stacks.  For detailed information about individual templates (including troubleshooting), see the following section.
+
 
 ## CloudFormation Templates
 
-This section lists the templates used in the Deployment Guide, and walks through deployment.
+This section contains detailed descriptions of the CloudFormation templates discussed in the [Deployment Guide](#deployment-guide).
+
 
 ### hail-s3
 
@@ -66,6 +72,7 @@ The template consumes 3 parameters, and creates 3 S3 buckets with [Server-Side E
 - SageMaker Jupyter Bucket - Users notebooks will be backed up here, and common/example notebooks will be stored here as well.
 
 *Note: S3 bucket names MUST be unique.  If the S3 bucket name is in use elsewhere, deployment will fail*
+
 
 ### hail-jupyter
 
@@ -97,13 +104,17 @@ Post upload, the bucket contents should look similar to this:
 2019-09-30 14:14:36       1244 scripts/ssm
 ```
 
+
 ### hail-ami
 
 This template is deployed `once`.
 
+Use this template to create your own custom Hail AMI for use with EMR.  Alternatively, instead of deploying this template, you may leverage the [public AMIs](#public-amis) listed below.  
+
 This template leverages [Packer](https://www.packer.io/) in AWS CodeBuild to create AMIs for use with EMR.  You can specify a specific Hail Version, VEP version, and target VPC and subnet.
 
 Review the [expanded documentation](packer/readme.md) for further details.
+
 
 ### hail-emr
 
@@ -140,6 +151,7 @@ Example connection from Jupyter Lab shell:
 
 Public AMIs are available in specific regions. Select the AMI for your target region and deploy with the noted version of EMR for best results.
 
+
 ### Hail with VEP
 
 | Region    | Hail Version | VEP Version | EMR Version | AMI ID                |
@@ -153,6 +165,7 @@ Public AMIs are available in specific regions. Select the AMI for your target re
 | us-east-1 | 0.2.25       | 98          | 5.27.0      | ami-0b16f8ef3418e707a |
 | us-east-2 | 0.2.25       | 98          | 5.27.0      | ami-0fc5abc51396918fd |
 | us-west-2 | 0.2.25       | 98          | 5.27.0      | ami-0feddab8068926b24 |
+
 
 ### Hail Only
 
