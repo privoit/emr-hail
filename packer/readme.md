@@ -1,5 +1,13 @@
 # Hail Packer Builds
 
+This ReadMe contains expanded documentation surrounding the AMI custom build process referenced in the [Deployment Guide](/readme.md#deployment-guide).
+
+Hail on EMR requires the use of a custom AMI with Hail, VEP, and reference genomes preconfigured.  Some of these features are optional, and the build process can be executed for different versions or combinations of these software packages.
+
+[Public AMIs](/readme.md#public-amis) are published and referenced in the root of this repo.  These AMIs built using this workflow.  If you wish to create you own custom AMIs, follow the process demonstrated here.
+
+_Note:  Creating these custom AMIs is a complicated process and requires working knowledge of AWS CodeBuild, Packer from Hashicorp, and shell scripting.  Troubleshooting will require intimiate knowledge of Hail, VEP, and their associated build processes (including knowledge of perl).  Proceed with caution._
+
 ## Table of Contents
 
 - [Hail Packer Builds](#hail-packer-builds)
@@ -13,7 +21,10 @@
   - [Troubleshooting](#troubleshooting)
     - [AMI Exists](#ami-exists)
 
+
 ## Directory Structure
+
+Below is a diagram of the directory structure, followed by a description of the contents of each directory.
 
 ```tree -L 3
 .
@@ -48,13 +59,15 @@ Target VPCs, which may exist in remote accounts, are broken out into individual 
 
 ### CodeBuild
 
-AWS CodeBuild can be leveraged create AMIs in your local account.  The [buildspec.yml](codebuild/buildspec.yml) file contains instructions for packer installation and invocation via AWS CodeBuild.  See [the Hail AMI markdown](docs/hail-ami.md) for more details.
+AWS CodeBuild can be leveraged create AMIs in your local account.  The [buildspec.yml](codebuild/buildspec.yml) file contains instructions for Packer installation and invocation via AWS CodeBuild.  See [the Hail AMI markdown](docs/hail-ami.md) for more details.
 
 ### Scripts
 
 The `scripts` directory contains bash scripts supporting the build components, Eg - VEP, Hail, supporting python packages, etc.  These scripts may be referenced from [amazon-linux.json](amazon-linux.json).  Scripts in this directory are linted with [ShellCheck](https://github.com/koalaman/shellcheck).
 
+
 ## CLI Building
+To execute a build using the CLI, follow these steps.
 
 ### Prerequisites
 
