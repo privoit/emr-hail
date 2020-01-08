@@ -35,7 +35,7 @@ This ReadMe will walk through deployment steps, and highlight potential pitfalls
 
 
 ## Deployment Guide
-_Note:  You will require elevated IAM privileges in AWS, ideally AdministratorAccess, to follow these steps_
+_Note:  You will require elevated IAM privileges in AWS, ideally AdministratorAccess, to complete this process_
 
 To deploy Hail on EMR, follow these steps:  
 
