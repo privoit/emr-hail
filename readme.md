@@ -65,7 +65,7 @@ This section contains detailed descriptions of the CloudFormation templates disc
 
 ### hail-s3
 
-This template is deployed `once`.
+This template is deployed _once_.
 
 The template consumes 3 parameters, and creates 3 S3 buckets with [Server-Side Encryption](https://docs.aws.amazon.com/AmazonS3/latest/dev/serv-side-encryption.html) (SSE).
 
@@ -78,7 +78,7 @@ The template consumes 3 parameters, and creates 3 S3 buckets with [Server-Side E
 
 ### hail-jupyter
 
-This template can be deployed `multiple times` (one per user).  
+This template can be deployed _multiple times_ (one per user).  
 
 The template deploys a SageMaker notebook instance which will be used for operations against the Hail EMR cluster.  The user's `/home/ec2-user/SageMaker` directory is backed up via crontab to the SageMaker Jupyter bucket created in the previous step with the `hail-s3` CloudFormation template.  
 
@@ -109,7 +109,7 @@ Post upload, the bucket contents should look similar to this:
 
 ### hail-ami
 
-This template is deployed `once`.
+This template is deployed _once_.
 
 Use this template to create your own custom Hail AMI for use with EMR.  Alternatively, instead of deploying this template, you may leverage the [public AMIs](#public-amis) listed below.  
 
@@ -120,7 +120,7 @@ Review the [expanded documentation](packer/readme.md) for further details.
 
 ### hail-emr
 
-This template can be deployed `multiple times` (one per cluster).
+This template can be deployed _multiple times_ (one per cluster).
 
 This template deploys the EMR cluster using the custom Hail AMI.  There is a single master node, a minimum of 1 core node, and optional autoscaling task nodes.
 
