@@ -6,7 +6,7 @@ Hail on EMR requires the use of a custom AMI with Hail, Spark, VEP, and referenc
 
 [Public AMIs](/readme.md#public-amis) are published and referenced in the root of this repo.  These AMIs are built using this workflow.  If you wish to create you own custom AMIs, follow the process documented here.
 
-_Note:  Creating these custom AMIs is a complicated process and requires working knowledge of AWS CodeBuild, Packer from Hashicorp, and shell scripting.  Troubleshooting will require intimiate knowledge of Hail, VEP, and their associated build processes (including knowledge of perl).  Proceed with caution._
+_Note:  Creating these custom AMIs is a complicated process and requires working knowledge of AWS CodeBuild, Packer from Hashicorp, and shell scripting.  Troubleshooting will require intimate knowledge of Hail, VEP, and their associated build processes (including knowledge of perl).  Proceed with caution._
 
 ## Table of Contents
 
