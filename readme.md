@@ -36,12 +36,18 @@ This ReadMe will walk through deployment steps, and highlight potential pitfalls
 To deploy this Hail on EMR, follow these steps:  
 
 1. Log into your AWS account, and access the CloudFormation console
-2. Deploy the [hail-s3](#hail-s3) template to create S3 resources, ensuring you use unique names for the S3 buckets
-2. Once the `hail-s3` stack deployment completes, deploy the [hail-jupyter](#hail-jupyter) template to create the SageMaker notebook instance
+
+2. Deploy the [hail-s3.yml](#hail-s3) template to create S3 resources, ensuring you use unique names for the S3 buckets
+
+2. Once the `hail-s3` stack deployment completes, deploy the [hail-jupyter.yml](#hail-jupyter) template to create the SageMaker notebook instance
+
 3. At this point you have created S3 buckets, and now have a SageMaker notebook instance you can log into
-4. Once the `hail-jupyter` stack deploy completes, deploy the [hail-ami](#hail-ami) template to create the custom AMI build process using CodeBuild and Packer (note that this step is optional if you intend to use the public AMIs listed below)
+
+4. Once the `hail-jupyter` stack deploy completes, deploy the [hail-ami.yml](#hail-ami) template to create the custom AMI build process using CodeBuild and Packer (note that this step is optional if you intend to use the public AMIs listed below)
+
 5. If you do not intend to use the public AMIs, follow the [expanded documentation](packer/readme.md) to create your Hail AMIs
-6. Once the AMI build is complete (or you have selected your public AMI), deploy the [hail-emr](#hail-emr) template to create the EMR cluster using a custom Hail AMI
+
+6. Once the AMI build is complete (or you have selected your public AMI), deploy the [hail-emr.yml](#hail-emr) template to create the EMR cluster using a custom Hail AMI
 
 The order is important, as resources created by one stack may be used as parameter entries to later stacks.  For detailed information about individual templates (including troubleshooting), see the following section.
 
