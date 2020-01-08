@@ -78,7 +78,7 @@ To build a custom Hail AMI for use with EMR, follow these steps:
 
 2. Deploy the AWS CodeBuild resources described in the [Deployment Guide](/readme.md#deployment-guide) contained in the `hail-ami.yml` template
 
-3. VEP cache
+3. If you'll be using VEP, [configure your VEP cache](docs/vep-install.md)
 
 4. Packer config
 
