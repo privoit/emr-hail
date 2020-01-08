@@ -35,7 +35,9 @@ This ReadMe will walk through deployment steps, and highlight potential pitfalls
 
 
 ## Deployment Guide
-To deploy this Hail on EMR, follow these steps:  
+_Note:  You will require elevated IAM privileges in AWS, ideally AdministratorAccess, to follow these steps_
+
+To deploy Hail on EMR, follow these steps:  
 
 1. Log into your AWS account, and access the CloudFormation console
 
