@@ -4,27 +4,34 @@ This ReadMe contains expanded documentation surrounding the AMI custom build pro
 
 Hail on EMR requires the use of a custom AMI with Hail, Spark, VEP, and reference genomes preconfigured.  This build process is driven by Packer, and leverages AWS CodeBuild.  Note that some of these software packages are optional, and the build process can be executed for different versions or combinations of these software packages.
 
+AWS CodeBuild Projects are deployed via a CloudFormation template will that can be used to build specific combinations of [Hail](https://hail.is), [Spark](https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-spark.html), and [VEP](https://useast.ensembl.org/info/docs/tools/vep/index.html).  The local `packer` folder is zipped and pushed to an S3 bucket to be used as the build source.
+
+The Hail master branch HEAD can be used as a build source by **omitting** the `HAIL_VERSION` variable from your CodeBuild Project in CloudFormation.
+
+[VEP](https://useast.ensembl.org/info/docs/tools/vep/index.html) installation can also be excluded by **omitting** the `VEP_VERSION` environment variable.
+
 [Public AMIs](/readme.md#public-amis) are published and referenced in the root of this repo.  These AMIs are built using this workflow.  If you wish to create you own custom AMIs, follow the process documented here.
 
 _Note:  Creating these custom AMIs is a complicated process and requires working knowledge of AWS CodeBuild, Packer from Hashicorp, and shell scripting.  Troubleshooting will require intimate knowledge of Hail, VEP, and their associated build processes (including knowledge of perl).  Proceed with caution._
 
+
 ## Table of Contents
 
-- [Hail Packer Builds](#hail-packer-builds)
-  - [Directory Structure](#directory-structure)
-    - [Builds](#builds)
-    - [CodeBuild](#codebuild)
-    - [Scripts](#scripts)
-  - [Hail AMI Creation via AWS CodeBuild](#build-process)
-    - [Description](#description)
-    - [Prerequisites](#prerequisites)
-    - [Deployment](#deployment)
-    - [Building](#building)
-  - [CLI Building](#cli-building)
-    - [Prerequisites](#prerequisites)
-    - [Execution](#execution)
-  - [Troubleshooting](#troubleshooting)
-    - [AMI Exists](#ami-exists)
+- [Directory Structure](#directory-structure)
+  - [Builds](#builds)
+  - [CodeBuild](#codebuild)
+  - [Scripts](#scripts)
+- [Deployment Guide](#deployment-guide)
+  - [Prerequisites](#prerequisites)
+  - [Deployment](#deployment)
+  - [Building](#building)
+- [Execute a GUI Build](#execute-a-gui-build)
+- [Execute a CLI Build](#execute-a-cli-build)
+  - [Prerequisites](#prerequisites)
+  - [Execution](#execution)
+  - [A Note on Packer](#a-note-on-packer)
+- [Troubleshooting](#troubleshooting)
+  - [AMI Exists](#ami-exists)
 
 
 ## Directory Structure
@@ -71,36 +78,91 @@ The `codebuild` directory contains configuration items related to AWS CodeBuild,
 The `scripts` directory contains bash scripts supporting the build components (VEP, Hail, supporting python packages, etc.).  These scripts may be referenced from [amazon-linux.json](amazon-linux.json).  Scripts in this directory are linted with [ShellCheck](https://github.com/koalaman/shellcheck).
 
 
-## Build Process
+## Deployment Guide
+
+### Prerequisites
+- AWS CLI profile with access to copy files to the S3 bucket/path specified in the CloudFormation template
+- [Packer installed](https://www.packer.io/downloads.html) if executing a CLI build
+
+
+### Deployment
 To build a custom Hail AMI for use with EMR, follow these steps:
 
 1. Deploy the S3 resources described in the [Deployment Guide](/readme.md#deployment-guide) contained in the `hail-s3.yml` template
 
 2. Deploy the AWS CodeBuild resources described in the [Deployment Guide](/readme.md#deployment-guide) contained in the `hail-ami.yml` template
 
-3. If you'll be using VEP, [configure your VEP cache](docs/vep-install.md)
+3. If you'll be using [VEP](https://useast.ensembl.org/info/docs/tools/vep/index.html), [configure your VEP cache](docs/vep-install.md).  
 
-4. Packer config
+_NOTE: If using VEP, the VEP GRCh37 cache, GRCh38 cache, and LOFTEE data files archives MUST be in your Hail S3 bucket.  Review the [VEP pre-installation instructions](vep-install.md) for details_
 
-5. CLI build
+4a. Follow the steps for to [execute a GUI build](#execute-a-gui-build)
+
+OR
+
+4b. Follow the steps for to [execute a CLI build](#execute-a-cli-build) 
 
 
-### Description
+## Execute a GUI Build
 
-A CloudFormation template will deploy AWS CodeBuild Projects that can be used to build specific combinations of [Hail](https://hail.is), [Spark](https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-spark.html), and [VEP](https://useast.ensembl.org/info/docs/tools/vep/index.html).  The local packer folder is zipped and pushed to an S3 bucket to be used as the build source.
+Before building, keep the following in mind:
 
-The Hail master branch HEAD can be used as a build source by **omitting** the `HAIL_VERSION` variable from your CodeBuild Project in CloudFormation.
+- Builds can take a _very_ long time (upwards of 1-2 hours in some cases)
+- You MUST have VEP cache in your S3 bucket for the version of VEP you're building for
+- AMI names are unique.  If building an updated AMI, deregister the previous
 
-[VEP](https://useast.ensembl.org/info/docs/tools/vep/index.html) installation can also be excluded by **omitting** the `VEP_VERSION` environment variable.
+From the AWS CodeBuild dashboard, select the desired build's radio button and click **Start build**.
+
+![codebuild_1](docs/images/codebuild_start.png)
+
+On the next page you may optionally override any build parameters then click **Start build**.
+
+Once the build beings you can optionally tail logs to view progress.  Closing this window will not terminate the build.
+
+![codebuild_2](docs/images/codebuild_running.png)
+
+
+## Execute a CLI Build
+To execute a build using the CLI, follow these steps.
 
 ### Prerequisites
 
-- `hail-ami.yml` CloudFormation template successfully deployed
-- If using [VEP](https://useast.ensembl.org/info/docs/tools/vep/index.html), the VEP GRCh37 cache, GRCh38 cache, and LOFTEE data files archives must be in your Hail S3 bucket.  Review the [VEP pre-installation instructions](vep-install.md) for details.
-- AWS CLI profile with access to copy files to the S3 bucket/path specified in the CloudFormation template
+- AWS IAM profile configured in your shell with a **region** defined. This profile **must have permission to launch instances and create AMIs**.  The majority of required IAM permissions are documented [here](https://www.packer.io/docs/builders/amazon.html).  [iam:PassRole](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_passrole.html) is also required for the CodeBuild service role to associate the hail-packer EC2 instance role to the launched instance
+- Shell `AWS_PROFILE` exported
+- [Packer installed](https://www.packer.io/downloads.html) -  Version 1.4 or greater is recommended
 
-### Deployment
+### Execution
 
+Builds are executed via the [build wrapper](build-wrapper.sh).  This wrapper has two methods of invocation:
+
+- AWS CodeBuild
+
+  Environment variables are defined in the CodeBuild Project and the script is invoked with no arguments.  See [the Hail AMI markdown](docs/hail-ami.md) for more details.
+
+- Standard CLI
+
+  Arguments are added via the CLI. Use `./build-wrapper --help` for more details.
+
+  ```bash
+  usage: build-wrapper.sh [ARGUMENTS]
+
+    --hail-version  [Number Version]    - OPTIONAL.  If omitted, the current HEAD of master branch will be pulled.
+    --vep-version   [Number Version]    - OPTIONAL.  If omitted, VEP will not be included.
+    --hail-bucket   [S3 Bucket Name]    - REQUIRED
+    --var-file      [Full File Path]    - REQUIRED
+    --vpc-var-file  [Full File Path]    - REQUIRED
+
+    Example:
+
+   build-wrapper.sh --hail-version 0.2.18 \
+                    --vep-version 96 \
+                    --hail-bucket YOUR_HAIL_BUCKET \
+                    --var-file builds/emr-5.25.0.vars \
+                    --vpc-var-file builds/vpcs/account123-vpc01.vars
+  ```
+
+
+### A Note on Packer
 Each time a file changes under the `packer` directory you must zip and push directory up to S3.  CodeBuild will pull this zip file in for each build.
 
 From the `hail/packer` directory, zip the contents and move it to an S3 bucket/key that matches the parameters set in your CloudFormation.
@@ -132,67 +194,6 @@ From the `hail/packer` directory, zip the contents and move it to an S3 bucket/k
 move: ./packer.zip to s3://YOUR-BUCKET/ami/packer.zip
 ```
 
-## Building
-
-Before building, keep the following in mind:
-
-- Builds can take a _very_ long time (upwards of 1-2 hours in some cases).
-- You must have VEP cache in your S3 bucket for the version of VEP you're building for
-- AMI names are unique.  If building an updated AMI, deregister the previous.
-
-From the AWS CodeBuild dashboard, select the desired build's radio button and click **Start build**.
-
-![codebuild_1](docs/images/codebuild_start.png)
-
-On the next page you may optionally override any build parameters then click **Start build**.
-
-Once the build beings you can optionally tail logs to view progress.  Closing this window will not terminate the build.
-
-![codebuild_2](docs/images/codebuild_running.png)
-
-
-
-
-
-
-## CLI Building
-To execute a build using the CLI, follow these steps.
-
-### Prerequisites
-
-- AWS IAM profile configured in your shell with a **region** defined. This profile **must have permission to launch instances and create AMIs**.  The majority of required IAM permissions are documented [here](https://www.packer.io/docs/builders/amazon.html).  [iam:PassRole](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_passrole.html) is also required for the CodeBuild service role to associate the hail-packer EC2 instance role to the launched instance.
-- Shell `AWS_PROFILE` exported
-- [Packer installed](https://www.packer.io/downloads.html) -  Version 1.4 or greater is recommended.
-
-### Execution
-
-Builds are executed via the [build wrapper](build-wrapper.sh).  This wrapper has two methods of invocation:
-
-- AWS CodeBuild
-
-  Environment variables are defined in the CodeBuild Project and the script is invoked with no arguments.  See [the Hail AMI markdown](docs/hail-ami.md) for more details.
-
-- Standard CLI
-
-  Arguments are added via the CLI. Use `./build-wrapper --help` for more details.
-
-  ```bash
-  usage: build-wrapper.sh [ARGUMENTS]
-
-    --hail-version  [Number Version]    - OPTIONAL.  If omitted, the current HEAD of master branch will be pulled.
-    --vep-version   [Number Version]    - OPTIONAL.  If omitted, VEP will not be included.
-    --hail-bucket   [S3 Bucket Name]    - REQUIRED
-    --var-file      [Full File Path]    - REQUIRED
-    --vpc-var-file  [Full File Path]    - REQUIRED
-
-    Example:
-
-   build-wrapper.sh --hail-version 0.2.18 \
-                    --vep-version 96 \
-                    --hail-bucket YOUR_HAIL_BUCKET \
-                    --var-file builds/emr-5.25.0.vars \
-                    --vpc-var-file builds/vpcs/account123-vpc01.vars
-  ```
 
 ## Troubleshooting
 
